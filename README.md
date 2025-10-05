@@ -36,6 +36,8 @@ Scripts
 - npm run dev – start with nodemon
 - npm start – start server
 
+Note: Running `npm run` without a script only lists scripts; use `npm start` or `npm run dev` to start the server.
+
 Env
 
 Create `.env` with:
@@ -46,7 +48,7 @@ MONGODB_URI=mongodb://localhost:27017/expense_tracker
 Run
 
 1. Install deps: npm i
-2. Start MongoDB locally
-3. npm run dev
+2. Start MongoDB locally (optional)
+3. npm run dev (auto-reload) or npm start
 4. Open http://localhost:3000
 
