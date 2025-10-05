@@ -1,0 +1,82 @@
+/* Dark theme variables and light fallbacks
+   Provides a consistent named color palette for the app.
+   The `.dark` class on <html> (already toggled in the pages) flips to the dark values.
+*/
+:root {
+  /* Light theme fallbacks (used when .dark is not present)
+     Updated to match provided HTML snippet */
+  --background: #f7f7f7; /* background-light */
+  --card: #ffffff;
+  --input: #ffffff;
+  --foreground: #101922; /* main text color in light mode */
+  --muted-foreground: #64748b;
+  --border: #e3e8ee;
+
+  /* Primary / accent */
+  --primary: #137FEC; /* app primary (blue) */
+  --primary-hover: #2D9CFF;
+  --accent: #0EA5E9;
+
+  /* Feedback */
+  --success: #22C55E;
+  --warning: #FACC15;
+  --error: #EF4444;
+}
+
+.dark {
+  /* Dark theme values aligned with the supplied HTML example */
+  --background: #191919; /* background-dark */
+  --card: #1f1f1f;       /* elevated card slightly lighter than background */
+  --input: #2b2b2b;      /* input-dark */
+  --foreground: #f7f7f7; /* in dark mode text uses background-light value in snippet */
+  --muted-foreground: #94A3B8; /* remain soft muted tone */
+  --border: rgba(255, 255, 255, 0.10); /* subtle border in dark */
+
+  --primary: #000000; /* primary per snippet */
+  --accent: #0EA5E9;
+
+  /* keep primary blue in dark mode too for consistent brand color */
+  --primary: #137FEC;
+  --primary-hover: #2D9CFF;
+
+  --success: #22C55E;
+  --warning: #FACC15;
+  --error: #EF4444;
+}
+
+/* Optional utility helpers (useful for non-Tailwind elements or inline styles) */
+.bg-app-background { background-color: var(--background) !important; }
+.bg-app-card { background-color: var(--card) !important; }
+.bg-app-input { background-color: var(--input) !important; }
+.text-app-foreground { color: var(--foreground) !important; }
+.text-app-muted { color: var(--muted-foreground) !important; }
+.border-app { border-color: var(--border) !important; }
+.text-app-primary { color: var(--primary) !important; }
+.bg-app-primary { background-color: var(--primary) !important; }
+.text-app-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-error { color: var(--error) !important; }
+
+/* Placeholder styling for native inputs and selects */
+input::placeholder, textarea::placeholder, select::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1; /* ensure consistent contrast */
+}
+
+/* Reduce visual noise on form controls in dark mode */
+select.form-select {
+  color: var(--foreground);
+}
+
+/* Ensure borders use our variable */
+.rounded-lg.border {
+  border-color: var(--border) !important;
+}
+
+/* Use an arrow icon that adapts to current text color */
+.form-select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'><path d='M6 8l4 4 4-4' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5'/></svg>");
+}
+
+

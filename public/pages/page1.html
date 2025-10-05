@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI-Powered Personal Expense Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/dark-theme.css" />
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137FEC",
+                        "primary-hover": "#2D9CFF",
+                        "accent": "#0EA5E9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0B1220",
+                        "background-elevated": "#101922",
+                        "foreground-light": "#0a1017",
+                        "foreground-dark": "#EEF3F9",
+                        "muted-foreground-light": "#64748b",
+                        "muted-foreground-dark": "#94A3B8",
+                        "foreground-muted-dark": "#94A3B8",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1B2734",
+                        "input-light": "#ffffff",
+                        "input-dark": "#1E2A38",
+                        "border-light": "#e3e8ee",
+                        "border-dark": "rgba(255, 255, 255, 0.12)",
+                        "success-dark": "#22C55E",
+                        "warning-dark": "#FACC15",
+                        "error-dark": "#EF4444",
+                        "info-dark": "#3B82F6"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+</head>
+<body class="font-display bg-app-background text-app-foreground">
+<div class="flex flex-col min-h-screen">
+  <header class="sticky top-0 z-10 bg-app-background bg-opacity-80 backdrop-blur-sm border-b border-app">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            
+            <!-- Logo and App Name -->
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 text-primary">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+                  <path clip-rule="evenodd" d="M10.4485 13.8519C10.4749 13.9271 10.6203 14.246 11.379 14.7361C12.298 15.3298 13.7492 15.9145 15.6717 16.3735C18.0007 16.9296 20.8712 17.2655 24 17.2655C27.1288 17.2655 29.9993 16.9296 32.3283 16.3735C34.2508 15.9145 35.702 15.3298 36.621 14.7361C37.3796 14.246 37.5251 13.9271 37.5515 13.8519C37.5287 13.7876 37.4333 13.5973 37.0635 13.2931C36.5266 12.8516 35.6288 12.3647 34.343 11.9175C31.79 11.0295 28.1333 10.4437 24 10.4437C19.8667 10.4437 16.2099 11.0295 13.657 11.9175C12.3712 12.3647 11.4734 12.8516 10.9365 13.2931C10.5667 13.5973 10.4713 13.7876 10.4485 13.8519ZM37.5563 18.7877C36.3176 19.3925 34.8502 19.8839 33.2571 20.2642C30.5836 20.9025 27.3973 21.2655 24 21.2655C20.6027 21.2655 17.4164 20.9025 14.7429 20.2642C13.1498 19.8839 11.6824 19.3925 10.4436 18.7877V34.1275C10.4515 34.1545 10.5427 34.4867 11.379 35.027C12.298 35.6207 13.7492 36.2054 15.6717 36.6644C18.0007 37.2205 20.8712 37.5564 24 37.5564C27.1288 37.5564 29.9993 37.2205 32.3283 36.6644C34.2508 36.2054 35.702 35.6207 36.621 35.027C37.4573 34.4867 37.5485 34.1546 37.5563 34.1275V18.7877ZM41.5563 13.8546V34.1455C41.5563 36.1078 40.158 37.5042 38.7915 38.3869C37.3498 39.3182 35.4192 40.0389 33.2571 40.5551C30.5836 41.1934 27.3973 41.5564 24 41.5564C20.6027 41.5564 17.4164 41.1934 14.7429 40.5551C12.5808 40.0389 10.6502 39.3182 9.20848 38.3869C7.84205 37.5042 6.44365 36.1078 6.44365 34.1455L6.44365 13.8546C6.44365 12.2684 7.37223 11.0454 8.39581 10.2036C9.43325 9.3505 10.8137 8.67141 12.343 8.13948C15.4203 7.06909 19.5418 6.44366 24 6.44366C28.4582 6.44366 32.5797 7.06909 35.657 8.13948C37.1863 8.67141 38.5667 9.3505 39.6042 10.2036C40.6278 11.0454 41.5563 12.2684 41.5563 13.8546Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+              </div>
+              <h1 class="text-xl font-bold text-app-foreground">FinTrack</h1>
+            </div>
+      
+            <!-- Navigation -->
+            <nav class="hidden md:flex flex-1 justify-center items-center gap-8">
+              <a class="text-sm font-medium text-muted-foreground-light dark:text-muted-foreground-dark hover:text-primary dark:hover:text-primary transition-colors" href="/">Dashboard</a>
+              <a class="text-sm font-medium text-muted-foreground-light dark:text-muted-foreground-dark hover:text-primary dark:hover:text-primary transition-colors" href="/expenses">Expenses</a>
+              <a class="text-sm font-medium text-primary dark:text-primary" href="/report">Report</a>
+            </nav>
+      
+            <!-- Profile + Notification -->
+            <div class="flex items-center gap-4">
+              <button id="themeToggle" class="flex items-center justify-center size-10 rounded-full hover:bg-primary/10 dark:hover:shadow-[0_0_10px_rgba(19,127,236,0.4)] transition-colors" aria-label="Toggle theme">
+                <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+              </button>
+              <button class="relative flex items-center justify-center size-10 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 transition-colors">
+                <span class="material-symbols-outlined">notifications</span>
+                <span id="notifDot" style="display:none" class="absolute top-1.5 right-1.5 inline-block size-2 rounded-full bg-red-500"></span>
+              </button>
+              <a href="/settings" title="Settings"><div data-profile-avatar class="w-10 h-10 bg-center bg-cover rounded-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDSPjC3zAh7P5fDaGvew9B6Q0_TFQ4GthU4w_H7MMsDGodQjfRKr-swoexNkpyWBEVDGWBkEXjuI8OhIh5RW_Hvgn60p9m085v8cslVBpmoG4Qtc4KyMGpEDU_C1h2ISdquJNMqhxYewSHaF9LMFEZj6QXptUOuZ2lhIW8yln_F-tG6ofBMfqSYWXfDg0VratBzW7VBVk7OLA2y4WAVe4V1hS8u7C8n7h0cZcUr7vMNk-Pmfphvk9JFjJLU2bbkbZQ5lAMyPmpC8odk");'></div></a>
+            </div>
+      
+          </div>
+        </div>
+      </header>
+      
+      
+<main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+<div class="max-w-2xl mx-auto">
+<div class="bg-app-card p-6 sm:p-8 rounded-xl shadow-sm">
+<div class="mb-6">
+<h2 class="text-2xl sm:text-3xl font-bold text-app-foreground">Add New Expense</h2>
+<p class="text-muted-foreground-light dark:text-muted-foreground-dark mt-1">Fill out the form to track a new expense.</p>
+</div>
+<form class="space-y-6" id="expense-form">
+<div>
+<label class="block text-sm font-medium text-app-foreground mb-1.5" for="amount">Amount</label>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<span id="currencyPrefix" class="text-muted-foreground-light dark:text-muted-foreground-dark">$</span>
+</div>
+<input class="block w-full rounded-lg border border-app bg-app-input py-3 pl-7 pr-4 text-app-foreground placeholder:text-muted-foreground-light dark:placeholder:text-muted-foreground-dark focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="amount" name="amount" placeholder="0.00" required="" type="number"/>
+<small class="text-xs text-red-500" id="amountError"></small>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-app-foreground mb-1.5" for="category">Category</label>
+<select class="block w-full rounded-lg border border-app bg-app-input py-3 px-4 text-app-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="category" name="category" required="">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="Food">Food</option>
+<option value="Transport">Transport</option>
+<option value="Entertainment">Entertainment</option>
+<option value="Bills">Bills</option>
+<option value="Shopping">Shopping</option>
+<option value="Other">Other</option>
+</select>
+<small class="text-xs text-red-500" id="categoryError"></small>
+</div>
+<div>
+<label class="block text-sm font-medium text-app-foreground mb-1.5" for="date">Date</label>
+<input class="block w-full rounded-lg border border-app bg-app-input py-3 px-4 text-app-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="date" name="date" required="" type="date"/>
+<small class="text-xs text-red-500" id="dateError"></small>
+</div>
+<div>
+<label class="block text-sm font-medium text-app-foreground mb-1.5" for="description">Description (optional)</label>
+<textarea class="block w-full rounded-lg border border-app bg-app-input py-3 px-4 text-app-foreground placeholder:text-muted-foreground-light dark:placeholder:text-muted-foreground-dark focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors" id="description" name="description" placeholder="e.g., Weekly grocery shopping" rows="3"></textarea>
+</div>
+<div class="flex flex-col sm:flex-row-reverse gap-4 pt-2">
+<button class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-app-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-colors" style="background-color:var(--primary);" type="submit">
+                                Add Expense
+                            </button>
+<button class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-app-card border border-app px-6 py-3 text-sm font-semibold text-app-primary dark:text-app-foreground hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" type="reset">
+                                Reset
+                            </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</div>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const stored = localStorage.getItem('theme');
+  if(stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)){
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+  const btn = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  function syncIcon(){ icon.textContent = root.classList.contains('dark') ? 'light_mode' : 'dark_mode'; }
+  syncIcon();
+  btn?.addEventListener('click', ()=>{
+    root.classList.toggle('dark');
+    localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    syncIcon();
+  });
+})();
+</script>
+<script type="module" src="/js/page1.js"></script>
+<script type="module">
+import { getCurrencySymbol } from '/js/shared.js';
+(function(){
+  const prefix = document.getElementById('currencyPrefix');
+  if(prefix){ prefix.textContent = getCurrencySymbol(); }
+})();
+</script>
+<script type="module">
+import { updateNotificationDot, applyProfileImageToDom } from '/js/shared.js';
+(function(){ updateNotificationDot(); applyProfileImageToDom(); })();
+</script>
+<script>
+(function(){
+  const nav = document.querySelector('header nav');
+  if(!nav) return;
+  const currentPath = location.pathname || '/';
+  const muted = ['text-muted-foreground-light','dark:text-muted-foreground-dark','hover:text-primary','dark:hover:text-primary','transition-colors'];
+  nav.querySelectorAll('a').forEach(a=>{
+    a.classList.remove('text-primary','dark:text-primary','font-bold',...muted);
+    if(a.getAttribute('href') === currentPath){
+      a.classList.add('text-primary','dark:text-primary','font-bold');
+      a.setAttribute('aria-current','page');
+    }else{
+      a.removeAttribute('aria-current');
+      a.classList.add(...muted);
+    }
+  });
+})();
+</script>
+
+</body></html>
+
+

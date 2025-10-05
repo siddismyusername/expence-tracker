@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Settings - ExpenseWise</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    // Updated Tailwind CSS configuration to match the desired theme
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#137FEC",
+            "primary-hover": "#2D9CFF",
+            "accent": "#0EA5E9",
+            "background-light": "#f6f7f8",
+            "background-dark": "#0B0B0B",
+            "card-light": "#FFFFFF",
+            "card-dark": "#1E1E1E", // Used for panels, filters, and cards
+            "foreground-light": "#0a1017",
+            "foreground-dark": "#FFFFFF",
+            "muted-foreground-light": "#64748b",
+            "muted-foreground-dark": "#9CA3AF",
+            "input-light": "#FFFFFF",
+            "input-dark": "#1E1E1E",
+            "border-light": "#E5E7EB",
+            "border-dark": "#2E2E2E",
+            "table-header-dark": "#10243F",
+            "error-dark": "#EF4444",
+          },
+          fontFamily: {
+            "display": ["Manrope"],
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "full": "9999px",
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/dark-theme.css" />
+</head>
+
+<body class="font-display bg-app-background text-app-foreground">
+  <div class="flex flex-col min-h-screen">
+    <header class="sticky top-0 z-10 bg-app-background bg-opacity-80 backdrop-blur-sm border-b border-app">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-4">
+            <div class="w-8 h-8 text-primary">
+              <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h1 class="text-xl font-bold text-foreground-light dark:text-foreground-dark">FinTrack</h1>
+          </div>
+          <nav class="hidden md:flex flex-1 justify-center items-center gap-8">
+            <a class="text-sm font-medium text-muted-foreground-light dark:text-muted-foreground-dark hover:text-primary dark:hover:text-primary transition-colors" href="/">Dashboard</a>
+            <a class="text-sm font-medium text-muted-foreground-light dark:text-muted-foreground-dark hover:text-primary dark:hover:text-primary transition-colors" href="/expenses">Expenses</a>
+            <a class="text-sm font-medium text-muted-foreground-light dark:text-muted-foreground-dark hover:text-primary dark:hover:text-primary transition-colors" href="/report">Report</a>
+          </nav>
+          <div class="flex items-center gap-4">
+            <button id="themeToggle" class="flex items-center justify-center size-10 rounded-full hover:bg-primary/10 transition-colors" aria-label="Toggle theme">
+              <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+            </button>
+            <button class="relative flex items-center justify-center size-10 rounded-full hover:bg-stone-200 dark:hover:bg-white/10 transition-colors">
+              <span class="material-symbols-outlined">notifications</span>
+              <span id="notifDot" style="display:none" class="absolute top-1.5 right-1.5 inline-block size-2 rounded-full bg-red-500"></span>
+            </button>
+            <a href="/settings" title="Settings">
+              <div data-profile-avatar class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://i.pravatar.cc/40?u=user");'></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-3xl font-bold tracking-tight text-foreground-light dark:text-foreground-dark mb-8">Settings</h2>
+        <div class="space-y-12">
+
+          <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-app-foreground border-b border-app pb-2">Profile</h3>
+            <div class="flex items-center justify-between p-4 rounded-lg bg-app-card border border-app">
+              <div class="flex items-center gap-4">
+                <div data-profile-avatar class="w-16 h-16 rounded-full bg-cover bg-center" style='background-image: url("https://i.pravatar.cc/64?u=user-profile");'></div>
+                <div>
+                  <p class="font-medium text-foreground-light dark:text-foreground-dark">Profile Picture</p>
+                  <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark">PNG, JPG, GIF up to 10MB.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <input id="avatarFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="hidden" />
+                <button id="avatarUploadBtn" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover focus:ring-2 focus:ring-primary/50 focus:outline-none transition-colors">
+                  Upload
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-app-foreground border-b border-app pb-2">Preferences</h3>
+            <div class="flex items-center justify-between p-4 rounded-lg bg-app-card border border-app">
+              <div>
+                <p class="font-medium text-app-foreground">Currency</p>
+                <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark">Select your preferred currency.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <label for="currencySelect" class="sr-only">Currency</label>
+                <div class="relative">
+                  <select id="currencySelect" class="block rounded-md border border-app bg-app-input px-3 pr-10 py-2 text-sm text-app-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none">
+                    <option value="USD">USD ($)</option>
+                    <option value="INR">INR (₹)</option>
+                  </select>
+                  <span class="material-symbols-outlined pointer-events-none absolute right-2 inset-y-0 flex items-center text-muted-foreground-light dark:text-muted-foreground-dark">arrow_drop_down</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-app-foreground border-b border-app pb-2">Notifications</h3>
+            <div class="p-4 rounded-lg bg-app-card border border-app space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-foreground-light dark:text-foreground-dark">Expense Notifications</p>
+                  <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark">Show a red badge when total spend exceeds threshold.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input id="notifEnabled" class="sr-only peer" type="checkbox" />
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-border-dark rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="notifThreshold" class="block text-sm font-medium text-app-foreground mb-1">Threshold (<span id="thresholdCurrency">$</span>)</label>
+                  <input id="notifThreshold" type="number" min="0.01" step="0.01" class="w-full px-3 py-2 bg-app-input text-app-foreground border border-app rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="100" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3 class="text-xl font-semibold text-app-foreground border-b border-app pb-2">Data Management</h3>
+            <div class="p-4 rounded-lg bg-app-card border border-app space-y-4">
+              <div>
+                <p class="font-medium text-foreground-light dark:text-foreground-dark">Download Data</p>
+                <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark">Download expense data for a specific date range.</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-app-foreground mb-1" for="start-date">Start Date</label>
+                  <input class="w-full px-3 py-2 bg-app-input text-app-foreground border border-app rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" id="start-date" type="date" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-app-foreground mb-1" for="end-date">End Date</label>
+                  <input class="w-full px-3 py-2 bg-app-input text-app-foreground border border-app rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" id="end-date" type="date" />
+                </div>
+              </div>
+              <div class="flex justify-end gap-3">
+                <button id="downloadBtn" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover focus:ring-2 focus:ring-primary/50 focus:outline-none transition-colors">
+                  Download
+                </button>
+                <input id="importFile" type="file" accept="application/json" class="hidden" />
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-lg bg-app-card border border-app">
+              <div>
+                <p class="font-medium text-foreground-light dark:text-foreground-dark">Import Data</p>
+                <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark">Import expense data from other sources.</p>
+              </div>
+              <button id="importBtn" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover focus:ring-2 focus:ring-primary/50 focus:outline-none transition-colors">
+                Import
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+      const btn = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
+
+      function syncIcon() {
+        icon.textContent = root.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+      }
+      syncIcon();
+      btn?.addEventListener('click', () => {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        syncIcon();
+      });
+    })();
+  </script>
+  <script type="module">
+    import { getPreferredCurrency, setPreferredCurrency, updateNotificationDot, usdToCurrency, getCurrencySymbol, getNotificationThresholdUsd, applyProfileImageToDom } from '/js/shared.js';
+    (function(){
+      const sel = document.getElementById('currencySelect');
+      if(!sel) return;
+      sel.value = getPreferredCurrency();
+      sel.addEventListener('change', ()=>{
+        setPreferredCurrency(sel.value);
+        const currency = sel.value;
+        const sym = document.getElementById('thresholdCurrency');
+        const input = document.getElementById('notifThreshold');
+        if(sym) sym.textContent = getCurrencySymbol(currency);
+        if(input) input.value = String(usdToCurrency(getNotificationThresholdUsd(), currency).toFixed(2));
+        updateNotificationDot();
+      });
+      // Initial sync for threshold UI
+      const currency = sel.value;
+      const sym = document.getElementById('thresholdCurrency');
+      const input = document.getElementById('notifThreshold');
+      if(sym) sym.textContent = getCurrencySymbol(currency);
+      if(input) input.value = String(usdToCurrency(getNotificationThresholdUsd(), currency).toFixed(2));
+      updateNotificationDot();
+      applyProfileImageToDom();
+    })();
+  </script>
+  <script type="module">
+    import { apiList, getNotificationEnabled, setNotificationEnabled, getNotificationThresholdUsd, setNotificationThresholdUsd, updateNotificationDot, getPreferredCurrency, currencyToUsd, setProfileImage, applyProfileImageToDom, readExpenses, writeExpenses } from '/js/shared.js';
+    (function(){
+      // Avatar upload
+      const uploadBtn = document.getElementById('avatarUploadBtn');
+      const fileInput = document.getElementById('avatarFile');
+      uploadBtn?.addEventListener('click', (e)=>{ e.preventDefault(); fileInput?.click(); });
+      fileInput?.addEventListener('change', ()=>{
+        const file = fileInput.files && fileInput.files[0];
+        if(!file) return;
+        if(file.size > 10 * 1024 * 1024){ alert('File too large (max 10MB)'); fileInput.value = ''; return; }
+        if(!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(file.type)){ alert('Unsupported format'); fileInput.value=''; return; }
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          const dataUrl = String(reader.result || '');
+          if(!dataUrl.startsWith('data:image/')) return;
+          setProfileImage(dataUrl);
+          applyProfileImageToDom();
+          fileInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      });
+      // Notifications settings
+      const enabledEl = document.getElementById('notifEnabled');
+      const thresholdEl = document.getElementById('notifThreshold');
+      if(enabledEl){ enabledEl.checked = !!getNotificationEnabled(); }
+      enabledEl?.addEventListener('change', ()=>{
+        setNotificationEnabled(enabledEl.checked);
+        updateNotificationDot();
+      });
+      thresholdEl?.addEventListener('input', ()=>{
+        const currency = getPreferredCurrency();
+        const usd = currencyToUsd(thresholdEl.value, currency);
+        setNotificationThresholdUsd(usd);
+        updateNotificationDot();
+      });
+
+      const downloadBtn = document.getElementById('downloadBtn');
+      const importBtn = document.getElementById('importBtn');
+      const importFile = document.getElementById('importFile');
+      const startEl = document.getElementById('start-date');
+      const endEl = document.getElementById('end-date');
+
+      function withinRange(item){
+        const s = startEl.value ? new Date(startEl.value) : null;
+        const e = endEl.value ? new Date(endEl.value) : null;
+        const d = new Date(item.date);
+        if(s && d < s) return false;
+        if(e && d > e) return false;
+        return true;
+      }
+
+      downloadBtn?.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        const items = (await apiList()) || readExpenses();
+        const filtered = items.filter(withinRange);
+        const payload = { version: 1, exportedAt: new Date().toISOString(), currency: 'USD', items: filtered };
+        const blob = new Blob([JSON.stringify(payload,null,2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'expenses-export.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      importBtn?.addEventListener('click', ()=> importFile?.click());
+      importFile?.addEventListener('change', async ()=>{
+        const file = importFile.files && importFile.files[0];
+        if(!file) return;
+        try{
+          const text = await file.text();
+          const data = JSON.parse(text);
+          const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
+          if(!items.length) return;
+          const srcCurrency = (data && data.currency) || 'USD';
+          const normalized = items.map(x=> ({
+            expenseId: x.expenseId || x.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+            amount: srcCurrency === 'USD' ? Number(x.amount||0) : currencyToUsd(x.amount, srcCurrency),
+            category: x.category || 'Other',
+            date: x.date || new Date().toISOString().slice(0,10),
+            description: x.description || ''
+          }));
+          const existing = readExpenses();
+          const seen = new Set(existing.map(e=> String(e.expenseId||e.id)));
+          const deduped = normalized.filter(e=>{
+            const key = String(e.expenseId);
+            if(seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          const merged = [...existing, ...deduped];
+          writeExpenses(merged);
+          importFile.value = '';
+          alert('Import completed');
+        }catch(err){
+          console.error(err);
+          alert('Invalid file');
+        }
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      const nav = document.querySelector('header nav');
+      if (!nav) return;
+      const currentPath = location.pathname || '/';
+      const muted = ['text-muted-foreground-light', 'dark:text-muted-foreground-dark', 'hover:text-primary', 'dark:hover:text-primary', 'transition-colors'];
+      nav.querySelectorAll('a').forEach(a => {
+        a.classList.remove('text-primary', 'dark:text-primary', 'font-bold', ...muted);
+        if (a.getAttribute('href') === currentPath) {
+          a.classList.add('text-primary', 'dark:text-primary', 'font-bold');
+          a.setAttribute('aria-current', 'page');
+        } else {
+          a.removeAttribute('aria-current');
+          a.classList.add(...muted);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+
