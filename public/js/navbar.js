@@ -22,12 +22,7 @@ function createNavbar() {
             </svg>
             </div>
             <h1 class="text-xl font-bold text-gray-900 dark:text-white">FinTrack</h1>
-            ${isAuthenticated() && hasFamilyAccess ? `
-            <div class="hidden md:inline-flex segmented-group flex-shrink-0 ml-6" role="radiogroup" aria-label="Data scope">
-                <button id="personalBtn" role="radio" aria-checked="${currentMode === VIEW_MODES.PERSONAL}" class="segmented-option" data-state="${currentMode === VIEW_MODES.PERSONAL ? 'checked' : 'unchecked'}" data-value="personal">Personal</button>
-                <button id="familyBtn" role="radio" aria-checked="${currentMode === VIEW_MODES.FAMILY}" class="segmented-option" data-state="${currentMode === VIEW_MODES.FAMILY ? 'checked' : 'unchecked'}" data-value="family">Family</button>
-            </div>
-            ` : ''}
+            <!-- Toggle removed as per new requirements -->
         </div>
 
         <!-- Navigation (centered) -->

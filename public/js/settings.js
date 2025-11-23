@@ -362,7 +362,9 @@ async function renderFamilyDashboard(userData) {
         // Fix: Check admin status against family.adminUserId, not user role
         const isAdmin = family.adminUserId === userData.userId;
 
-        let membersHtml = members.map(m => `
+        let membersHtml = members.map(m => {
+            const displayRole = m.role === 'admin' ? 'Admin' : 'Member';
+            return `
             <div class="flex items-center justify-between p-3 rounded-lg bg-app-input">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold bg-app-primary/15 text-app-primary">
@@ -372,7 +374,7 @@ async function renderFamilyDashboard(userData) {
                         <p class="text-sm font-medium text-app-foreground">
                             ${m.name} ${m.userId === userData.userId ? '(You)' : ''}
                         </p>
-                        <p class="text-xs text-app-muted capitalize">${m.role}</p>
+                        <p class="text-xs text-app-muted capitalize">${displayRole}</p>
                     </div>
                 </div>
                 ${isAdmin && m.userId !== userData.userId ? `
@@ -381,7 +383,7 @@ async function renderFamilyDashboard(userData) {
                 </button>
                 ` : ''}
             </div>
-        `).join('');
+        `}).join('');
 
         familyContent.innerHTML = `
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">

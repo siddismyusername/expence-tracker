@@ -6,20 +6,22 @@ if (!isAuthenticated()) {
   window.location.href = '/pages/login.html';
 }
 
-const totalSpentEl = document.getElementById('totalSpent');
-const transactionCountEl = document.getElementById('transactionCount');
+const myTotalSpentEl = document.getElementById('myTotalSpent');
+const familyTotalSpentEl = document.getElementById('familyTotalSpent');
 
-let chartInstance = null;
-function updateChart(labels, data){
+let categoryChartInstance = null;
+let personalPieChartInstance = null;
+
+function updateCategoryChart(labels, data){
 	const ctx = document.getElementById('categoryChart');
 	if(!ctx) return;
-	if(chartInstance){ chartInstance.destroy(); }
-	chartInstance = new Chart(ctx, {
+	if(categoryChartInstance){ categoryChartInstance.destroy(); }
+	categoryChartInstance = new Chart(ctx, {
 		type: 'bar',
 		data: { 
 			labels, 
 			datasets: [{ 
-				label: 'Spending by Category', 
+				label: 'Family Spending', 
 				data, 
 				backgroundColor: '#137FEC',
 				borderRadius: 8 
@@ -27,21 +29,44 @@ function updateChart(labels, data){
 		},
 		options: { 
 			responsive: true,
-			maintainAspectRatio: true,
+			maintainAspectRatio: false,
 			scales: { 
 				y: { 
 					beginAtZero: true,
-					ticks: {
-						callback: function(value) {
-							return '$' + value.toFixed(2);
-						}
-					}
+					ticks: { callback: (val) => '$' + val }
 				} 
 			},
+			plugins: { legend: { display: false } }
+		}
+	});
+}
+
+function updatePersonalPieChart(labels, data){
+	const ctx = document.getElementById('personalPieChart');
+	if(!ctx) return;
+	if(personalPieChartInstance){ personalPieChartInstance.destroy(); }
+	
+    // Generate colors
+    const colors = [
+        '#137FEC', '#0EA5E9', '#22C55E', '#FACC15', '#EF4444', 
+        '#8B5CF6', '#EC4899', '#64748B', '#F97316', '#14B8A6'
+    ];
+
+	personalPieChartInstance = new Chart(ctx, {
+		type: 'doughnut',
+		data: { 
+			labels, 
+			datasets: [{ 
+				data, 
+				backgroundColor: colors.slice(0, labels.length),
+				borderWidth: 0
+			}] 
+		},
+		options: { 
+			responsive: true,
+			maintainAspectRatio: false,
 			plugins: {
-				legend: {
-					display: false
-				}
+				legend: { position: 'right' }
 			}
 		}
 	});
@@ -49,38 +74,51 @@ function updateChart(labels, data){
 
 async function render(){
 	try {
-		const viewMode = getViewMode();
 		const user = getUserData();
 		
-		// Build query params
-		const params = {};
-		if (viewMode === 'family' && user?.familyId) {
-			params.familyId = user.familyId;
-		} else {
-			params.type = 'personal';
-		}
-		
-		const response = await apiRequest('/api/expenses', { 
-			method: 'GET',
-			params 
-		});
-		
+		// Fetch all expenses (API defaults to family if user has familyId)
+		const response = await apiRequest('/api/expenses', { method: 'GET' });
 		const items = response.data || [];
-		const total = items.reduce((sum,e)=> sum + Number(e.amount || 0), 0);
-		totalSpentEl.textContent = formatFromUSD(total);
-		transactionCountEl.textContent = items.length;
+		
+        // 1. Calculate Family Total
+		const familyTotal = items.reduce((sum,e)=> sum + Number(e.amount || 0), 0);
+		familyTotalSpentEl.textContent = formatFromUSD(familyTotal);
 
-		const byCat = CATEGORIES.reduce((acc,c)=> (acc[c]=0,acc), {});
+        // 2. Calculate My Total (Personal + Common)
+        const myExpenses = items.filter(e => e.userId === user.userId);
+        const myTotal = myExpenses.reduce((sum,e)=> sum + Number(e.amount || 0), 0);
+        myTotalSpentEl.textContent = formatFromUSD(myTotal);
+
+        // 3. Prepare Family Category Chart
+		const byCatFamily = {};
 		for(const e of items){ 
-			if (byCat.hasOwnProperty(e.category)) {
-				byCat[e.category] = (byCat[e.category]||0) + Number(e.amount); 
-			}
+            byCatFamily[e.category] = (byCatFamily[e.category]||0) + Number(e.amount); 
 		}
-		updateChart(Object.keys(byCat), Object.values(byCat));
+		updateCategoryChart(Object.keys(byCatFamily), Object.values(byCatFamily));
+
+        // 4. Prepare Personal Pie Chart (All expenses made by me)
+        const byCatPersonal = {};
+        for(const e of myExpenses){
+            byCatPersonal[e.category] = (byCatPersonal[e.category]||0) + Number(e.amount);
+        }
+        
+        // Only show categories with > 0 spending
+        const pieLabels = Object.keys(byCatPersonal).filter(k => byCatPersonal[k] > 0);
+        const pieData = pieLabels.map(k => byCatPersonal[k]);
+        
+        if (pieLabels.length > 0) {
+            updatePersonalPieChart(pieLabels, pieData);
+        } else {
+            // Handle empty state for pie chart?
+             const ctx = document.getElementById('personalPieChart');
+             if(ctx) {
+                 // Maybe clear or show text
+             }
+        }
+
 	} catch (error) {
 		console.error('Error loading dashboard data:', error);
-		totalSpentEl.textContent = 'Error';
-		transactionCountEl.textContent = '0';
+        if(myTotalSpentEl) myTotalSpentEl.textContent = 'Error';
 	}
 }
 

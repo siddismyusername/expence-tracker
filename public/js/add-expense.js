@@ -47,54 +47,9 @@ const splitTypeEl = document.getElementById('splitType');
 const recurringEl = document.getElementById('recurring');
 const sharedWithContainer = document.getElementById('sharedWithContainer');
 
-async function loadFamilyMembers() {
-    const userData = getUserData();
-    if (!userData || !userData.familyId) return;
-    
-    try {
-        const resp = await apiRequest(`/api/family/${userData.familyId}/members`);
-        if (resp.success) {
-            const members = resp.data.members.filter(m => m.userId !== userData.userId); // Exclude self
-            
-            if (members.length === 0) {
-                sharedWithContainer.innerHTML = '<p class="text-sm text-gray-500">No other members in family.</p>';
-                return;
-            }
-            
-            sharedWithContainer.innerHTML = members.map(m => `
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" value="${m.userId}" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
-                    <span class="text-sm text-gray-700 dark:text-gray-300">${m.name}</span>
-                </label>
-            `).join('');
-        }
-    } catch (e) {
-        console.error('Failed to load members', e);
-        sharedWithContainer.innerHTML = '<p class="text-sm text-red-500">Failed to load members.</p>';
-    }
-}
-
-function toggleFamilyOptions() {
-    const mode = getViewMode();
-    if (mode === 'family') {
-        familyOptions.classList.remove('hidden');
-        // Load members if not loaded (simple check)
-        if (sharedWithContainer.innerText.includes('Loading')) {
-            loadFamilyMembers();
-        }
-    } else {
-        familyOptions.classList.add('hidden');
-    }
-}
-
-// Initial check
-toggleFamilyOptions();
-
-// Listen for changes
-window.addEventListener('viewModeChanged', toggleFamilyOptions);
-
-// Future date restriction removed
-// dateEl.max = new Date().toISOString().slice(0,10);
+// Deprecated: Family options are now hidden or simplified
+// function toggleFamilyOptions() { ... }
+// window.addEventListener('viewModeChanged', toggleFamilyOptions);
 
 // Edit Mode Logic
 const urlParams = new URLSearchParams(window.location.search);
@@ -122,22 +77,9 @@ if (editId) {
                 dateEl.value = expense.date.split('T')[0];
                 descEl.value = expense.description || '';
                 
-                if (expense.type === 'family') {
-                    // Ensure family options are visible
-                    familyOptions.classList.remove('hidden');
-                    
-                    if (expense.splitType) splitTypeEl.value = expense.splitType;
-                    if (expense.recurring) recurringEl.checked = true;
-                    
-                    // Populate sharedWith
-                    if (expense.sharedWith && Array.isArray(expense.sharedWith)) {
-                        // We need to wait for members to load
-                        await loadFamilyMembers();
-                        expense.sharedWith.forEach(uid => {
-                            const cb = sharedWithContainer.querySelector(`input[value="${uid}"]`);
-                            if(cb) cb.checked = true;
-                        });
-                    }
+                if (expense.isCommon) {
+                    const isCommonCb = document.getElementById('isCommon');
+                    if(isCommonCb) isCommonCb.checked = true;
                 }
             } else {
                 console.error('Expense not found');
@@ -198,11 +140,13 @@ form.addEventListener('submit', async (e)=>{
 
         if (editId) {
             // Update existing
+            const isCommon = document.getElementById('isCommon').checked;
             const updateData = {
                 amount: amountUsd,
                 category: categoryEl.value,
                 date: dateEl.value,
-                description: descEl.value.trim()
+                description: descEl.value.trim(),
+                isCommon: isCommon
             };
             
             response = await apiRequest(`/api/expenses/${editId}`, {
@@ -219,7 +163,7 @@ form.addEventListener('submit', async (e)=>{
             }
         } else {
             // Create new
-            const sharedWith = Array.from(sharedWithContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+            const isCommon = document.getElementById('isCommon').checked;
             
             const expense = {
                 expenseId: generateId(),
@@ -227,11 +171,12 @@ form.addEventListener('submit', async (e)=>{
                 category: categoryEl.value,
                 date: dateEl.value,
                 description: descEl.value.trim(),
-                type: viewMode, // 'personal' or 'family'
-                familyId: viewMode === 'family' ? userData.familyId : null,
-                splitType: viewMode === 'family' ? splitTypeEl.value : 'full',
-                sharedWith: viewMode === 'family' ? sharedWith : [],
-                recurring: viewMode === 'family' ? recurringEl.checked : false
+                isCommon: isCommon, // New flag
+                // Deprecated fields
+                // type: viewMode, 
+                // familyId: ... (handled by backend)
+                // splitType: ...
+                // sharedWith: ...
             };
             
             response = await apiRequest('/api/expenses', {
@@ -248,7 +193,7 @@ form.addEventListener('submit', async (e)=>{
                 // Show success message
                 const successMsg = document.createElement('div');
                 successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                successMsg.textContent = `Expense added successfully! (${viewMode === 'family' ? 'Family' : 'Personal'})`;
+                successMsg.textContent = `Expense added successfully!`;
                 document.body.appendChild(successMsg);
                 setTimeout(() => successMsg.remove(), 3000);
             }

@@ -60,24 +60,44 @@
 <h2 class="text-3xl font-bold tracking-tight text-app-foreground mb-8">Dashboard</h2>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
-<div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
-<div class="flex items-center gap-4">
-<div class="bg-primary/10 text-primary p-3 rounded-lg"><span class="material-symbols-outlined">account_balance_wallet</span></div>
-<p class="text-base font-medium text-stone-600 dark:text-stone-400">Total Spending</p>
+    <!-- My Spending -->
+    <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+        <div class="flex items-center gap-4">
+            <div class="bg-primary/10 text-primary p-3 rounded-lg"><span class="material-symbols-outlined">person</span></div>
+            <p class="text-base font-medium text-stone-600 dark:text-stone-400">My Spending</p>
+        </div>
+        <p class="text-3xl font-bold mt-4 text-app-foreground"><span id="myTotalSpent">$0</span></p>
+        <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mt-1">Personal + Common</p>
+    </div>
+    
+    <!-- Family Spending -->
+    <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+        <div class="flex items-center gap-4">
+            <div class="bg-primary/10 text-primary p-3 rounded-lg"><span class="material-symbols-outlined">groups</span></div>
+            <p class="text-base font-medium text-stone-600 dark:text-stone-400">Family Total</p>
+        </div>
+        <p class="text-3xl font-bold mt-4 text-app-foreground"><span id="familyTotalSpent">$0</span></p>
+        <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mt-1">All members combined</p>
+    </div>
 </div>
-<p class="text-3xl font-bold mt-4 text-app-foreground"><span id="totalSpent">$0</span></p>
-</div>
-<div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
-<div class="flex items-center gap-4">
-<div class="bg-primary/10 text-primary p-3 rounded-lg"><span class="material-symbols-outlined">receipt_long</span></div>
-<p class="text-base font-medium text-stone-600 dark:text-stone-400">Total Transactions</p>
-</div>
-<p class="text-3xl font-bold mt-4 text-app-foreground"><span id="transactionCount">0</span></p>
-</div>
-</div>
-<div class="lg:col-span-3 bg-app-card rounded-xl shadow-sm p-6 border border-app">
-<h3 class="text-lg font-semibold mb-4 text-app-foreground">Spending by Category</h3>
-<canvas id="categoryChart" height="140"></canvas>
+
+<div class="lg:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Personal Distribution -->
+    <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+        <h3 class="text-lg font-semibold mb-4 text-app-foreground">My Personal Expenses</h3>
+        <p class="text-xs text-muted-foreground-light dark:text-muted-foreground-dark mb-4">Excludes common/shared expenses</p>
+        <div class="h-64">
+            <canvas id="personalPieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Category Bar Chart -->
+    <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+        <h3 class="text-lg font-semibold mb-4 text-app-foreground">Family Spending by Category</h3>
+        <div class="h-64">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
 </div>
 </div>
 </div>

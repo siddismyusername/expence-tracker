@@ -55,10 +55,9 @@ const expenseSchema = new mongoose.Schema({
     default: '',
     trim: true
   },
-  type: {
-    type: String,
-    enum: ['personal', 'family'],
-    default: 'personal',
+  isCommon: {
+    type: Boolean,
+    default: false,
     index: true
   },
   splitType: {
@@ -212,9 +211,9 @@ expenseSchema.virtual('pendingAmount').get(function() {
 
 // Pre-save validation
 expenseSchema.pre('save', async function(next) {
-  // Validate familyId exists if type is family
-  if (this.type === 'family' && !this.familyId) {
-    return next(new Error('familyId required for family expenses'));
+  // Validate familyId exists if isCommon is true
+  if (this.isCommon && !this.familyId) {
+    return next(new Error('familyId required for common expenses'));
   }
   
   // Validate split amounts equal total
@@ -238,7 +237,7 @@ expenseSchema.pre('save', async function(next) {
 
 // Pre-save hook: Validate family membership
 expenseSchema.pre('save', async function(next) {
-  if (this.type === 'family' && this.familyId) {
+  if (this.familyId) {
     try {
       const Family = mongoose.model('Family');
       const family = await Family.findOne({ familyId: this.familyId });
@@ -332,7 +331,7 @@ expenseSchema.statics.aggregateByCategory = function(familyId, startDate, endDat
 
 // Post-save hook: Update family budget
 expenseSchema.post('save', async function(doc) {
-  if (doc.type === 'family' && doc.familyId && doc.approvalStatus === 'approved') {
+  if (doc.familyId && doc.approvalStatus === 'approved') {
     try {
       const Family = mongoose.model('Family');
       await Family.findOneAndUpdate(

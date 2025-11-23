@@ -96,7 +96,18 @@
 <small class="text-xs text-red-500" id="dateError"></small>
 </div>
 
-<!-- Family Options -->
+<!-- Common Expense Checkbox -->
+<div class="flex items-center space-x-3 bg-app-input p-4 rounded-lg border border-app">
+    <div class="flex items-center h-5">
+        <input id="isCommon" name="isCommon" type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+    </div>
+    <div class="ml-3 text-sm">
+        <label for="isCommon" class="font-medium text-app-foreground">Mark as Common Expense</label>
+        <p class="text-muted-foreground-light dark:text-muted-foreground-dark">This expense is shared by the family and not just for personal use.</p>
+    </div>
+</div>
+
+<!-- Family Options (Deprecated/Hidden) -->
 <div id="familyOptions" class="hidden space-y-6 border-t border-gray-200 dark:border-gray-700 pt-6">
     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Family Options</h3>
     

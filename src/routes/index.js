@@ -20,24 +20,20 @@ router.get('/categories', (_req, res) => {
 
 // GET /api/expenses - List expenses with filtering
 router.get('/expenses', authenticateJWT, asyncHandler(async (req, res) => {
-	const { category, fromDate, toDate, type, familyId } = req.query;
+	const { category, fromDate, toDate, userId, isCommon } = req.query;
 	const query = { isDeleted: false };
 	
-	// Filter by user
-	// If familyId provided or type is family, filter by family
-	if (familyId || type === 'family') {
-		query.familyId = familyId || req.user.familyId;
-		query.type = 'family';
-	} else if (type === 'personal') {
-		query.userId = req.user.userId;
-		query.type = 'personal';
+	// If user is in a family, return all family expenses by default
+	if (req.user.familyId) {
+		query.familyId = req.user.familyId;
 	} else {
-		// Return both personal and family expenses
-		query.$or = [
-			{ userId: req.user.userId, type: 'personal' },
-			{ familyId: req.user.familyId, type: 'family' }
-		];
+		// Fallback for users not in a family (shouldn't happen in new model but good for safety)
+		query.userId = req.user.userId;
 	}
+
+	// Optional filters
+	if (userId) query.userId = userId;
+	if (isCommon !== undefined) query.isCommon = isCommon === 'true';
 	
 	if (category) query.category = category;
 	if (fromDate || toDate) {
@@ -64,10 +60,8 @@ router.get('/expenses/:id', authenticateJWT, asyncHandler(async (req, res) => {
 	
 	// Check permission
 	if (expense.userId !== req.user.userId && expense.paidBy !== req.user.userId) {
-		if (expense.type === 'family') {
-			if (expense.familyId !== req.user.familyId) {
-				return res.status(403).json({ success: false, error: 'Permission denied' });
-			}
+		if (expense.familyId && expense.familyId === req.user.familyId) {
+			// Allowed if in same family
 		} else {
 			return res.status(403).json({ success: false, error: 'Permission denied' });
 		}
@@ -89,8 +83,8 @@ router.post('/expenses/batch', authenticateJWT, asyncHandler(async (req, res) =>
 	
 	try {
 		const expensesToInsert = items.map(item => {
-			// Default to personal unless explicitly family AND user is in a family
-			const isFamily = item.type === 'family' && req.user.familyId;
+			// Determine if common expense
+			const isCommon = item.isCommon || (item.type === 'family');
 			
 			return {
 				expenseId: item.expenseId || `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}_${Math.random().toString(36).substr(2, 5)}`,
@@ -100,8 +94,8 @@ router.post('/expenses/batch', authenticateJWT, asyncHandler(async (req, res) =>
 				category: CATEGORIES.includes(item.category) ? item.category : 'Other',
 				date: item.date || new Date().toISOString().slice(0, 10),
 				description: item.description || 'Imported Expense',
-				type: isFamily ? 'family' : 'personal',
-				familyId: isFamily ? req.user.familyId : null,
+				isCommon: !!isCommon,
+				familyId: req.user.familyId || null,
 				splitType: 'full',
 				approvalStatus: 'approved', // Auto-approve imports
 				isDeleted: false,
@@ -135,7 +129,7 @@ router.post('/expenses', authenticateJWT, asyncHandler(async (req, res) => {
 		category, 
 		date, 
 		description, 
-		type, 
+		isCommon, // New field
 		splitType, 
 		sharedWith,
 		recurring,
@@ -166,13 +160,13 @@ router.post('/expenses', authenticateJWT, asyncHandler(async (req, res) => {
 	try {
 		const id = expenseId || `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 		
-		// Determine if family expense
-		const isFamily = type === 'family' && req.user.familyId;
+		// Always attach familyId if user has one
+		const familyId = req.user.familyId || null;
 		
-		// Check if approval required
+		// Check if approval required (only if in family)
 		let approvalStatus = 'approved';
-		if (isFamily) {
-			const family = await Family.findOne({ familyId: req.user.familyId });
+		if (familyId) {
+			const family = await Family.findOne({ familyId });
 			if (family && family.settings.approvalRequired && amount > family.settings.approvalThreshold) {
 				approvalStatus = 'pending';
 			}
@@ -186,8 +180,8 @@ router.post('/expenses', authenticateJWT, asyncHandler(async (req, res) => {
 			category,
 			date,
 			description,
-			type: isFamily ? 'family' : 'personal',
-			familyId: isFamily ? req.user.familyId : null,
+			isCommon: !!isCommon, // Use new flag
+			familyId, // Always attach familyId
 			splitType: splitType || 'full',
 			sharedWith: sharedWith || [],
 			recurring: recurring || false,
@@ -203,7 +197,7 @@ router.post('/expenses', authenticateJWT, asyncHandler(async (req, res) => {
 		}
 		
 		// Check budget alerts
-		if (isFamily) {
+		if (familyId) {
 			const family = await Family.findOne({ familyId: req.user.familyId });
 			if (family && family.shouldAlertBudget(category)) {
 				const budget = family.sharedBudgets.find(b => b.category === category && b.isActive);
@@ -236,7 +230,7 @@ router.delete('/expenses/:id', authenticateJWT, asyncHandler(async (req, res) =>
 	
 	// Check permission
 	if (expense.userId !== req.user.userId && expense.paidBy !== req.user.userId) {
-		if (expense.type === 'family') {
+		if (expense.familyId && expense.familyId === req.user.familyId) {
 			const family = await Family.findOne({ familyId: expense.familyId });
 			if (!family || family.adminUserId !== req.user.userId) {
 				return res.status(403).json({ success: false, error: 'Permission denied' });

@@ -20,10 +20,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Logging and performance monitoring
 app.use(performanceMonitor);
+app.use(optionalAuth);
 app.use(requestLogger);
 
 // Optional authentication for all requests
-app.use(optionalAuth);
+// app.use(optionalAuth); // Moved up for logging context
 
 // Serve static frontend (Fallback for local dev, Vercel handles this via CDN usually)
 app.use(express.static(serverConfig.PUBLIC_DIR));

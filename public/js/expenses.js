@@ -28,16 +28,6 @@ function getFilters(){
   if (fromEl && fromEl.value) filters.startDate = fromEl.value;
   if (toEl && toEl.value) filters.endDate = toEl.value;
   
-  const viewMode = getViewMode();
-  if (viewMode === 'family') {
-    const user = getUserData();
-    if (user && user.familyId) {
-      filters.familyId = user.familyId;
-    }
-  } else {
-    filters.type = 'personal';
-  }
-  
   return filters;
 }
 
@@ -45,9 +35,15 @@ async function render(){
   if(!tableBody) return;
   try {
     const filters = getFilters();
-    const response = await apiRequest('/api/expenses', { 
-      method: 'GET',
-      params: filters
+    
+    // Construct query string
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) searchParams.append(key, value);
+    }
+    
+    const response = await apiRequest(`/api/expenses?${searchParams.toString()}`, { 
+      method: 'GET'
     });
     
     let items = response.data || [];
@@ -56,9 +52,9 @@ async function render(){
     tableBody.innerHTML = '';
     for(const exp of items){
       const tr = document.createElement('tr');
-      const typeLabel = exp.type === 'family' ? '👨‍👩‍👧‍👦' : '👤';
-      const statusBadge = exp.status !== 'approved' ? 
-        `<span class="text-xs px-2 py-1 rounded ${exp.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-500'}">${exp.status}</span>` : '';
+      const typeLabel = exp.isCommon ? '👨‍👩‍👧‍👦' : '👤';
+      const statusBadge = exp.approvalStatus !== 'approved' ? 
+        `<span class="text-xs px-2 py-1 rounded ${exp.approvalStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-red-500/20 text-red-500'}">${exp.approvalStatus}</span>` : '';
       
       tr.innerHTML = `
         <td class="px-4 py-3">${new Date(exp.date).toLocaleDateString()}</td>
