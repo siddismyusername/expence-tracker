@@ -55,29 +55,104 @@
 
     <div id="navbar-placeholder"></div>
 
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-6xl">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold mb-2">Family Management</h1>
-                <p class="text-muted-foreground-light dark:text-muted-foreground-dark">Manage your family members and settings.</p>
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- View: No Family (Create or Join) -->
+        <div id="noFamilyView" class="hidden space-y-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold mb-2">Welcome to Family Banking</h1>
+                <p class="text-muted-foreground-light dark:text-muted-foreground-dark">Join an existing family or create a new one to start tracking shared expenses.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Create Family Card -->
+                <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+                    <div class="flex items-center gap-3 mb-4 text-primary">
+                        <span class="material-symbols-outlined text-3xl">add_home</span>
+                        <h2 class="text-xl font-bold">Create a Family</h2>
+                    </div>
+                    <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mb-6">
+                        Start a new family group. You will be the admin and can invite others.
+                    </p>
+                    <form id="createFamilyForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Family Name</label>
+                            <input type="text" id="newFamilyName" required placeholder="e.g. The Smiths" 
+                                class="w-full rounded-lg border border-app bg-app-input py-2 px-3 focus:ring-2 focus:ring-primary/50">
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                            Create Family
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Join Family Card -->
+                <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+                    <div class="flex items-center gap-3 mb-4 text-accent">
+                        <span class="material-symbols-outlined text-3xl">group_add</span>
+                        <h2 class="text-xl font-bold">Join a Family</h2>
+                    </div>
+                    <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mb-6">
+                        Enter the Family ID shared with you by a family admin.
+                    </p>
+                    <form id="joinFamilyForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Family ID</label>
+                            <input type="text" id="joinFamilyId" required placeholder="e.g. fam_123abc" 
+                                class="w-full rounded-lg border border-app bg-app-input py-2 px-3 focus:ring-2 focus:ring-primary/50">
+                        </div>
+                        <button type="submit" class="w-full bg-card-light dark:bg-card-dark border border-app hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">
+                            Join Family
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-8 text-center">
-            <span class="material-symbols-outlined text-6xl text-primary mb-4">diversity_3</span>
-            <h2 class="text-2xl font-bold mb-2">Family Features Coming Soon</h2>
-            <p class="text-muted-foreground-light dark:text-muted-foreground-dark max-w-md mx-auto">
-                We are working hard to bring you advanced family management features including member roles, shared budgets, and more.
-            </p>
+        <!-- View: Family Dashboard -->
+        <div id="familyDashboardView" class="hidden space-y-6">
+            <!-- Header -->
+            <div class="bg-primary/10 rounded-xl p-6 border border-primary/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-primary mb-1" id="familyName">Loading...</h1>
+                    <div class="flex items-center gap-2 text-sm text-muted-foreground-light dark:text-muted-foreground-dark">
+                        <span>ID: <span id="familyId" class="font-mono select-all">...</span></span>
+                        <button id="copyFamilyIdBtn" class="text-primary hover:text-primary-hover p-1 rounded" title="Copy ID">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark px-4 py-2 rounded-lg border border-app text-sm flex items-center gap-3">
+                    <div class="hidden md:block">
+                        <span class="material-symbols-outlined align-middle text-base mr-1">info</span>
+                        Share Family ID
+                    </div>
+                    <button id="copyInviteBtn" class="bg-primary hover:bg-primary-hover text-white px-3 py-1 rounded transition-colors text-sm font-medium flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                        Copy Invite
+                    </button>
+                    <div class="h-4 w-px bg-border-light dark:bg-border-dark mx-1"></div>
+                    <button id="leaveFamilyBtn" class="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1 rounded transition-colors text-sm font-medium">
+                        Leave
+                    </button>
+                </div>
+            </div>
+
+            <!-- Members List -->
+            <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+                <div class="p-4 border-b border-app flex justify-between items-center">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined">group</span> Family Members
+                    </h2>
+                </div>
+                <div id="membersList" class="divide-y divide-app">
+                    <!-- Members injected here -->
+                </div>
+            </div>
         </div>
+
     </main>
 
-    <script type="module" src="/js/navbar.js"></script>
-    <script type="module">
-        import { isAuthenticated } from '/js/shared.js';
-        if (!isAuthenticated()) {
-            window.location.href = '/pages/login.html';
-        }
-    </script>
+    <script type="module" src="/js/family.js"></script>
 </body>
 </html>

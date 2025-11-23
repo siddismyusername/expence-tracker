@@ -106,7 +106,8 @@ const familySchema = new mongoose.Schema({
     inviteId: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      sparse: true
     },
     email: {
       type: String,

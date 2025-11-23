@@ -103,6 +103,7 @@ if (require.main === module) {
 			console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 			
 			// Auto-open browser only in development
+			/*
 			if (process.env.NODE_ENV !== 'production') {
 				try {
 					// Use dynamic import or require inside the block to avoid top-level dependency issues
@@ -112,6 +113,7 @@ if (require.main === module) {
 					// Ignore open errors
 				}
 			}
+			*/
 		});
 	});
 }

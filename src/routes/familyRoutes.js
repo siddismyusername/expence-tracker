@@ -81,6 +81,77 @@ router.post('/', asyncHandler(async (req, res) => {
   }
 }));
 
+// POST /api/family/join - Join family using ID
+router.post('/join', asyncHandler(async (req, res) => {
+  const { familyId } = req.body;
+
+  if (!familyId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Family ID is required'
+    });
+  }
+
+  // Check if user already has a family
+  if (req.user.familyId) {
+    return res.status(400).json({
+      success: false,
+      error: 'You are already part of a family'
+    });
+  }
+
+  const family = await Family.findOne({ familyId, isActive: true });
+  
+  if (!family) {
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid Family ID'
+    });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Add member to family
+    family.members.push({
+      userId: req.user.userId,
+      name: req.user.name,
+      role: 'parent', // Default role for joiners
+      email: req.user.email,
+      joinedAt: new Date(),
+      isActive: true
+    });
+
+    await family.save({ session });
+
+    // Update user's familyId
+    await User.findOneAndUpdate(
+      { userId: req.user.userId },
+      { familyId: family.familyId },
+      { session }
+    );
+
+    await session.commitTransaction();
+
+    res.json({
+      success: true,
+      data: {
+        family: {
+          familyId: family.familyId,
+          name: family.name
+        },
+        message: 'Successfully joined family'
+      }
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+}));
+
 // GET /api/family/:familyId - Get family details
 router.get('/:familyId', requireFamilyMember, asyncHandler(async (req, res) => {
   res.json({
@@ -132,7 +203,7 @@ router.post('/:familyId/invite', requireFamilyAdmin, asyncHandler(async (req, re
   req.family.invitations.push({
     inviteId,
     email: email.toLowerCase(),
-    role: 'member', // Default role
+    role: 'parent', // Default role
     token,
     expiresAt,
     status: 'pending',
@@ -407,6 +478,80 @@ router.patch('/:familyId', requireFamilyAdmin, asyncHandler(async (req, res) => 
     success: true,
     data: { family: req.family }
   });
+}));
+
+// POST /api/family/leave - Leave current family
+router.post('/leave', asyncHandler(async (req, res) => {
+  if (!req.user.familyId) {
+    return res.status(400).json({
+      success: false,
+      error: 'You are not in a family'
+    });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const family = await Family.findOne({ familyId: req.user.familyId }).session(session);
+    
+    if (!family) {
+      // Inconsistency fix: User has familyId but family doesn't exist
+      await User.findOneAndUpdate(
+        { userId: req.user.userId },
+        { familyId: null },
+        { session }
+      );
+      await session.commitTransaction();
+      return res.json({ success: true, message: 'Left family' });
+    }
+
+    // Check if user is admin
+    if (family.adminUserId === req.user.userId) {
+      // If admin, check if there are other active members
+      const activeMembers = family.members.filter(m => m.isActive && m.userId !== req.user.userId);
+      if (activeMembers.length > 0) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          error: 'Admin cannot leave while there are other members. Remove them first.'
+        });
+      }
+      
+      // If no other members, delete/archive the family
+      // For now, we'll just mark the admin as inactive, effectively "abandoning" the family
+      // Or we can delete the family document? Let's just remove the user.
+    }
+
+    // Remove user from family members
+    const memberIndex = family.members.findIndex(m => m.userId === req.user.userId);
+    if (memberIndex !== -1) {
+      family.members[memberIndex].isActive = false;
+      // If admin is leaving (and was the only one), maybe mark family as inactive?
+      // For now, just save.
+      await family.save({ session });
+    }
+
+    // Update user
+    await User.findOneAndUpdate(
+      { userId: req.user.userId },
+      { familyId: null },
+      { session }
+    );
+
+    await session.commitTransaction();
+    
+    res.json({
+      success: true,
+      message: 'Successfully left family'
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 }));
 
 module.exports = router;

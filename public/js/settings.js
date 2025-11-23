@@ -252,20 +252,45 @@ async function initFamilySection() {
 
 function renderCreateFamily() {
     familyContent.innerHTML = `
-        <div class="text-center py-4">
-            <div class="mb-4 text-gray-500 dark:text-gray-400">
-                <i class="fas fa-users text-4xl mb-2"></i>
-                <p>Create a family group to share expenses and budgets.</p>
-            </div>
-            <form id="createFamilyForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">Family Name</label>
-                    <input type="text" id="familyNameInput" required class="form-field" placeholder="e.g. The Smiths">
+        <div class="space-y-6">
+            <!-- Create Family -->
+            <div class="text-center">
+                <div class="mb-4 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-users text-4xl mb-2"></i>
+                    <p>Create a family group to share expenses and budgets.</p>
                 </div>
-                <button type="submit" class="w-full flex justify-center px-4 py-2 rounded-md text-sm font-medium text-white bg-app-primary hover:brightness-110 focus-ring">
-                    Create Family
-                </button>
-            </form>
+                <form id="createFamilyForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">Family Name</label>
+                        <input type="text" id="familyNameInput" required class="form-field" placeholder="e.g. The Smiths">
+                    </div>
+                    <button type="submit" class="w-full flex justify-center px-4 py-2 rounded-md text-sm font-medium text-white bg-app-primary hover:brightness-110 focus-ring">
+                        Create Family
+                    </button>
+                </form>
+            </div>
+
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-app-card text-gray-500">Or join existing</span>
+                </div>
+            </div>
+
+            <!-- Join Family -->
+            <div>
+                <form id="joinFamilyForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">Family ID</label>
+                        <input type="text" id="joinFamilyIdInput" required class="form-field" placeholder="e.g. fam_123abc">
+                    </div>
+                    <button type="submit" class="w-full flex justify-center px-4 py-2 rounded-md text-sm font-medium text-app-foreground bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 focus-ring border border-gray-300 dark:border-gray-600">
+                        Join Family
+                    </button>
+                </form>
+            </div>
         </div>
     `;
     
@@ -291,6 +316,30 @@ function renderCreateFamily() {
             alert(err.message);
         }
     });
+
+    document.getElementById('joinFamilyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const familyId = document.getElementById('joinFamilyIdInput').value;
+        try {
+            const resp = await apiRequest('/api/family/join', {
+                method: 'POST',
+                body: JSON.stringify({ familyId })
+            });
+            if (resp.success) {
+                // Update local user data with new familyId
+                const userData = getUserData();
+                userData.familyId = resp.data.family.familyId;
+                setUserData(userData);
+                // Reload to show dashboard
+                initFamilySection();
+                alert('Joined family successfully!');
+            } else {
+                alert(resp.error || 'Failed to join family');
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    });
 }
 
 async function renderFamilyDashboard(userData) {
@@ -310,7 +359,8 @@ async function renderFamilyDashboard(userData) {
         
         const family = familyResp.data.family;
         const members = membersResp.data.members;
-        const isAdmin = userData.role === 'admin';
+        // Fix: Check admin status against family.adminUserId, not user role
+        const isAdmin = family.adminUserId === userData.userId;
 
         let membersHtml = members.map(m => `
             <div class="flex items-center justify-between p-3 rounded-lg bg-app-input">
@@ -326,7 +376,7 @@ async function renderFamilyDashboard(userData) {
                     </div>
                 </div>
                 ${isAdmin && m.userId !== userData.userId ? `
-                <button onclick="removeMember('${m.userId}')" class="text-red-500 hover:text-red-700 text-sm">
+                <button onclick="removeMember('${m.userId}')" class="text-red-500 hover:text-red-700 text-sm" title="Remove Member">
                     <i class="fas fa-trash"></i>
                 </button>
                 ` : ''}
@@ -335,9 +385,20 @@ async function renderFamilyDashboard(userData) {
 
         familyContent.innerHTML = `
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
-                <h3 class="text-xl font-bold text-app-foreground">${family.name}</h3>
-                <!-- Family ID hidden as requested -->
-                <!-- <p class="text-sm text-app-muted">Family ID: <span class="font-mono select-all">${family.familyId}</span></p> -->
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold text-app-foreground">${family.name}</h3>
+                        <p class="text-sm text-app-muted mt-1">Family ID: <span class="font-mono select-all bg-app-input px-1 rounded">${family.familyId}</span></p>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button id="settingsCopyInviteBtn" class="px-3 py-1 rounded text-sm font-medium text-white bg-app-primary hover:brightness-110 transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">content_copy</span> Copy Invite
+                        </button>
+                        <button id="settingsLeaveFamilyBtn" class="px-3 py-1 rounded text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 transition-colors">
+                            Leave Family
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div class="mb-6">
@@ -346,40 +407,52 @@ async function renderFamilyDashboard(userData) {
                     ${membersHtml}
                 </div>
             </div>
-
-            ${isAdmin ? `
-            <div class="pt-4 border-t border-app">
-                <h4 class="text-sm font-medium text-app-foreground mb-3">Invite Member</h4>
-                <form id="inviteMemberForm" class="flex gap-2">
-                    <input type="email" id="inviteEmail" required placeholder="Email address" class="form-field text-sm" style="flex: 2; min-width: 0;">
-                    <!-- Role selection removed -->
-                    <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-app-primary hover:brightness-110 focus-ring" style="flex: 0 0 auto;">
-                        Invite
-                    </button>
-                </form>
-            </div>
-            ` : ''}
         `;
 
-        if (isAdmin) {
-            document.getElementById('inviteMemberForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('inviteEmail').value;
-                // Role removed
-                try {
-                    const resp = await apiRequest(`/api/family/${userData.familyId}/invite`, {
-                        method: 'POST',
-                        body: JSON.stringify({ email })
-                    });
-                    if (resp.success) {
-                        alert('Invitation sent successfully!');
-                        document.getElementById('inviteEmail').value = '';
-                    }
-                } catch (err) {
-                    alert(err.message);
-                }
-            });
+        // Setup Copy Invite Button
+        const copyBtn = document.getElementById('settingsCopyInviteBtn');
+        if (copyBtn) {
+            copyBtn.onclick = () => {
+                const inviteText = `Join my family on Expense Tracker! Use Family ID: ${family.familyId}`;
+                navigator.clipboard.writeText(inviteText);
+                
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span> Copied!';
+                copyBtn.classList.remove('bg-app-primary');
+                copyBtn.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.classList.add('bg-app-primary');
+                    copyBtn.classList.remove('bg-green-600');
+                }, 2000);
+            };
+        }
 
+        // Setup Leave Family Button
+        const leaveBtn = document.getElementById('settingsLeaveFamilyBtn');
+        if (leaveBtn) {
+            leaveBtn.onclick = async () => {
+                if (!confirm('Are you sure you want to leave this family?')) return;
+                try {
+                    const res = await apiRequest('/api/family/leave', { method: 'POST' });
+                    if (res.success) {
+                        // Update local user data
+                        const user = getUserData();
+                        user.familyId = null;
+                        setUserData(user);
+                        window.location.reload();
+                    } else {
+                        alert(res.error || 'Failed to leave family');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to leave family');
+                }
+            };
+        }
+
+        if (isAdmin) {
             // Expose removeMember to global scope for onclick
             window.removeMember = async (userId) => {
                 if(!confirm('Are you sure you want to remove this member?')) return;
