@@ -113,19 +113,23 @@ process.on('SIGINT', async () => {
 });
 
 // Start server
-app.listen(serverConfig.PORT, () => {
-	console.log(`Server running on http://localhost:${serverConfig.PORT}`);
-	console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-	
-	// Auto-open browser
-	(async () => {
-		try {
-			await open(`http://localhost:${serverConfig.PORT}`);
-		} catch (error) {
-			console.log('Could not open browser automatically');
+if (require.main === module) {
+	app.listen(serverConfig.PORT, () => {
+		console.log(`Server running on http://localhost:${serverConfig.PORT}`);
+		console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+		
+		// Auto-open browser only in development
+		if (process.env.NODE_ENV !== 'production') {
+			(async () => {
+				try {
+					await open(`http://localhost:${serverConfig.PORT}`);
+				} catch (error) {
+					console.log('Could not open browser automatically');
+				}
+			})();
 		}
-	})();
-});
+	});
+}
 
 module.exports = app;
 
