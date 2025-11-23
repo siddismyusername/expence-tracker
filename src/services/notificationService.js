@@ -7,23 +7,27 @@ const Expense = require('../models/Expense');
 
 class NotificationService {
   constructor() {
-    // Create reusable transporter
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: process.env.SMTP_PORT || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
+    // Create reusable transporter only if credentials exist
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || 587,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      });
+    } else {
+      this.transporter = null;
+    }
   }
   
   // Send email notification
   async sendEmail(to, subject, html) {
     try {
-      if (!process.env.SMTP_USER) {
-        console.log('Email notification (SMTP not configured):', { to, subject });
+      if (!this.transporter) {
+        console.log('Email notification skipped (SMTP not configured):', { to, subject });
         return { skipped: true };
       }
       

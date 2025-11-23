@@ -6,7 +6,7 @@ const path = require('path');
 const serverConfig = require('./config/serverConfig');
 const { requestLogger, performanceMonitor } = require('./middleware/logger');
 const { optionalAuth } = require('./middleware/auth');
-const open = require('open');
+// const open = require('open'); // Removed top-level require to prevent serverless issues
 
 const app = express();
 
@@ -104,13 +104,13 @@ if (require.main === module) {
 			
 			// Auto-open browser only in development
 			if (process.env.NODE_ENV !== 'production') {
-				(async () => {
-					try {
-						await open(`http://localhost:${serverConfig.PORT}`);
-					} catch (error) {
-						console.log('Could not open browser automatically');
-					}
-				})();
+				try {
+					// Use dynamic import or require inside the block to avoid top-level dependency issues
+					const open = require('open');
+					open(`http://localhost:${serverConfig.PORT}`).catch(() => {});
+				} catch (e) {
+					// Ignore open errors
+				}
 			}
 		});
 	});
