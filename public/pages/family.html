@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinTrack Family</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/dark-theme.css" />
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137FEC",
+                        "primary-hover": "#2D9CFF",
+                        "accent": "#0EA5E9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0B1220",
+                        "background-elevated": "#101922",
+                        "foreground-light": "#0a1017",
+                        "foreground-dark": "#EEF3F9",
+                        "muted-foreground-light": "#64748b",
+                        "muted-foreground-dark": "#94A3B8",
+                        "foreground-muted-dark": "#94A3B8",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1B2734",
+                        "input-light": "#ffffff",
+                        "input-dark": "#1E2A38",
+                        "border-light": "#e3e8ee",
+                        "border-dark": "rgba(255, 255, 255, 0.12)",
+                        "success-dark": "#22C55E",
+                        "warning-dark": "#FACC15",
+                        "error-dark": "#EF4444",
+                        "info-dark": "#3B82F6"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+</script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark font-display min-h-screen flex flex-col transition-colors duration-200">
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Family Management</h1>
+                <p class="text-muted-foreground-light dark:text-muted-foreground-dark">Manage your family members and settings.</p>
+            </div>
+        </div>
+
+        <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-8 text-center">
+            <span class="material-symbols-outlined text-6xl text-primary mb-4">diversity_3</span>
+            <h2 class="text-2xl font-bold mb-2">Family Features Coming Soon</h2>
+            <p class="text-muted-foreground-light dark:text-muted-foreground-dark max-w-md mx-auto">
+                We are working hard to bring you advanced family management features including member roles, shared budgets, and more.
+            </p>
+        </div>
+    </main>
+
+    <script type="module" src="/js/navbar.js"></script>
+    <script type="module">
+        import { isAuthenticated } from '/js/shared.js';
+        if (!isAuthenticated()) {
+            window.location.href = '/pages/login.html';
+        }
+    </script>
+</body>
+</html>
