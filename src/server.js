@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
-const session = require('express-session');
+// Session removed: Incompatible with serverless/Vercel (stateless) and redundant (using JWT)
 const serverConfig = require('./config/serverConfig');
 const { requestLogger, performanceMonitor } = require('./middleware/logger');
 const { optionalAuth } = require('./middleware/auth');
@@ -18,18 +18,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
-app.use(session({
-	secret: serverConfig.SESSION_SECRET,
-	resave: false,
-	saveUninitialized: false,
-	cookie: {
-		secure: process.env.NODE_ENV === 'production',
-		httpOnly: true,
-		maxAge: serverConfig.SESSION_MAX_AGE
-	}
-}));
-
 // Logging and performance monitoring
 app.use(performanceMonitor);
 app.use(requestLogger);
@@ -37,8 +25,28 @@ app.use(requestLogger);
 // Optional authentication for all requests
 app.use(optionalAuth);
 
-// Serve static frontend
+// Serve static frontend (Fallback for local dev, Vercel handles this via CDN usually)
 app.use(express.static(serverConfig.PUBLIC_DIR));
+
+// Database Connection Pattern for Serverless
+let isConnected = false;
+const connectDB = async () => {
+	if (isConnected) return;
+	try {
+		mongoose.set('strictQuery', true);
+		await mongoose.connect(serverConfig.MONGODB_URI, serverConfig.DB_OPTIONS);
+		isConnected = true;
+		console.log('MongoDB connected successfully');
+	} catch (err) {
+		console.error('MongoDB connection error:', err.message);
+	}
+};
+
+// Connect to DB on every request (cached)
+app.use(async (req, res, next) => {
+	await connectDB();
+	next();
+});
 
 // API routes
 const expenseRoutes = require('./routes/index');
@@ -86,48 +94,29 @@ app.get(/^(?!\/api\/).*$/, (_req, res) => {
 	res.sendFile(path.join(serverConfig.PUBLIC_DIR, 'index.html'));
 });
 
-// DB Connection with improved options
-mongoose.set('strictQuery', true);
-mongoose.connect(serverConfig.MONGODB_URI, serverConfig.DB_OPTIONS)
-	.then(() => {
-		console.log('MongoDB connected successfully');
-		console.log(`Database: ${mongoose.connection.name}`);
-		console.log(`Connection pool size: ${serverConfig.DB_OPTIONS.maxPoolSize}`);
-	})
-	.catch(err => {
-		console.error('MongoDB connection error:', err.message);
-		process.exit(1);
-	});
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-	console.log('SIGTERM received, closing server...');
-	await mongoose.connection.close();
-	process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-	console.log('SIGINT received, closing server...');
-	await mongoose.connection.close();
-	process.exit(0);
-});
-
 // Start server
 if (require.main === module) {
-	app.listen(serverConfig.PORT, () => {
-		console.log(`Server running on http://localhost:${serverConfig.PORT}`);
-		console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-		
-		// Auto-open browser only in development
-		if (process.env.NODE_ENV !== 'production') {
-			(async () => {
-				try {
-					await open(`http://localhost:${serverConfig.PORT}`);
-				} catch (error) {
-					console.log('Could not open browser automatically');
-				}
-			})();
-		}
+	// Only connect immediately in standalone mode
+	connectDB().then(() => {
+		app.listen(serverConfig.PORT, () => {
+			console.log(`Server running on http://localhost:${serverConfig.PORT}`);
+			console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+			
+			// Auto-open browser only in development
+			if (process.env.NODE_ENV !== 'production') {
+				(async () => {
+					try {
+						await open(`http://localhost:${serverConfig.PORT}`);
+					} catch (error) {
+						console.log('Could not open browser automatically');
+					}
+				})();
+			}
+		});
+	});
+}
+
+module.exports = app;
 	});
 }
 

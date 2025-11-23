@@ -4,7 +4,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Resolve project root
-const projectRoot = path.resolve(__dirname, '../..');
+// In Vercel/Serverless, process.cwd() is safer for finding the root
+const projectRoot = process.cwd();
 const publicDir = path.join(projectRoot, 'public');
 
 const serverConfig = {
