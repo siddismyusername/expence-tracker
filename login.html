@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login - FinTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/dark-theme.css" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137FEC",
+                        "primary-hover": "#2D9CFF",
+                        "app-background": "#0B1220",
+                        "app-card": "#1B2734",
+                        "app-foreground": "#EEF3F9",
+                        "app-input": "#1E2A38",
+                        "app-border": "rgba(255, 255, 255, 0.12)"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-display bg-app-background text-app-foreground flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md bg-app-card rounded-xl shadow-lg border border-app-border p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-primary mb-2">FinTrack</h1>
+            <p class="text-muted-foreground-light dark:text-muted-foreground-dark">Welcome back! Please login to your account.</p>
+        </div>
+        
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="email" class="block text-sm font-medium mb-2 text-app-foreground">Email Address</label>
+                <input type="email" id="email" required 
+                    class="w-full rounded-lg bg-app-input border border-app text-app-foreground focus:ring-2 focus:ring-primary focus:border-primary transition-colors px-4 py-3"
+                    placeholder="you@example.com">
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-medium mb-2 text-app-foreground">Password</label>
+                <input type="password" id="password" required 
+                    class="w-full rounded-lg bg-app-input border border-app text-app-foreground focus:ring-2 focus:ring-primary focus:border-primary transition-colors px-4 py-3"
+                    placeholder="••••••••">
+            </div>
+
+            <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+
+            <button type="submit" 
+                class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                Sign In
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-muted-foreground-light dark:text-muted-foreground-dark">
+            Don't have an account? 
+            <a href="/register.html" class="text-primary hover:text-primary-hover font-medium">Sign up</a>
+        </div>
+    </div>
+
+    <script type="module" src="/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FinTrack Report</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/dark-theme.css" />
+    <link rel="stylesheet" href="/css/toast.css" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137FEC",
+                        "primary-hover": "#2D9CFF",
+                        "accent": "#0EA5E9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0B1220",
+                        "background-elevated": "#101922",
+                        "foreground-light": "#0a1017",
+                        "foreground-dark": "#EEF3F9",
+                        "muted-foreground-light": "#475569",
+                        "muted-foreground-dark": "#CBD5E1",
+                        "foreground-muted-dark": "#CBD5E1",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1B2734",
+                        "input-light": "#ffffff",
+                        "input-dark": "#1E2A38",
+                        "border-light": "#e3e8ee",
+                        "border-dark": "rgba(255, 255, 255, 0.12)",
+                        "success-dark": "#22C55E",
+                        "warning-dark": "#FACC15",
+                        "error-dark": "#EF4444",
+                        "info-dark": "#3B82F6"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display bg-app-background text-app-foreground">
+    <div class="flex flex-col min-h-screen">
+        <!-- Navbar injected by navbar.js -->
+
+        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold tracking-tight text-app-foreground mb-8">Dashboard</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- My Spending -->
+                        <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-primary/10 text-primary p-3 rounded-lg"><span
+                                        class="material-symbols-outlined">person</span></div>
+                                <p class="text-base font-medium text-stone-600 dark:text-stone-400">My Spending</p>
+                            </div>
+                            <p class="text-3xl font-bold mt-4 text-app-foreground"><span id="myTotalSpent">$0</span></p>
+                            <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mt-1">Personal
+                                + Common</p>
+                        </div>
+
+                        <!-- Family Spending -->
+                        <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-primary/10 text-primary p-3 rounded-lg"><span
+                                        class="material-symbols-outlined">groups</span></div>
+                                <p class="text-base font-medium text-stone-600 dark:text-stone-400">Family Total</p>
+                            </div>
+                            <p class="text-3xl font-bold mt-4 text-app-foreground"><span id="familyTotalSpent">$0</span>
+                            </p>
+                            <p class="text-sm text-muted-foreground-light dark:text-muted-foreground-dark mt-1">All
+                                members combined</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- User Distribution Pie -->
+                        <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+                            <h3 class="text-lg font-semibold mb-4 text-app-foreground">Family Spending by User</h3>
+                            <p class="text-xs text-muted-foreground-light dark:text-muted-foreground-dark mb-4">How much
+                                each member spent this month</p>
+                            <div class="h-64">
+                                <canvas id="userDistributionPie"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Family Category Bar Chart -->
+                        <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+                            <h3 class="text-lg font-semibold mb-4 text-app-foreground">Family Spending by Category</h3>
+                            <p class="text-xs text-muted-foreground-light dark:text-muted-foreground-dark mb-4">All
+                                family expenses this month</p>
+                            <div class="h-64">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <!-- My Personal Category Bar -->
+                        <div class="bg-app-card rounded-xl shadow-sm p-6 border border-app">
+                            <h3 class="text-lg font-semibold mb-4 text-app-foreground">My Personal Expenses by Category
+                            </h3>
+                            <p class="text-xs text-muted-foreground-light dark:text-muted-foreground-dark mb-4">Your
+                                expenses excluding common/shared - This month</p>
+                            <div class="h-64">
+                                <canvas id="personalCategoryBar"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/js/toast.js"></script>
+    <script type="module" src="/js/dashboard.js"></script>
+    <script type="module" src="/js/navbar.js"></script>
+
+</body>
+
+</html>
