@@ -6,7 +6,9 @@ async function loadSettings() {
 
         document.getElementById('userNameDisplay').textContent = user.name;
         document.getElementById('userEmailDisplay').textContent = user.email;
-        document.getElementById('profileImage').src = user.profilePicture;
+        if (user.profilePicture) {
+            document.getElementById('profileImage').src = user.profilePicture;
+        }
 
         // Populate preferences if any
         if (user.preferences) {
@@ -32,7 +34,7 @@ async function loadFamilySection(user) {
     if (user.familyId) {
         // Show Family Dashboard
         try {
-            const family = await api.family.members();
+            const family = await api.family.details();
             renderFamilyDashboard(container, family, user._id);
         } catch (err) {
             container.innerHTML = '<p class="text-red-500">Failed to load family details.</p>';
@@ -113,7 +115,7 @@ function renderFamilyDashboard(container, family, currentUserId) {
     `;
 
     const membersList = document.getElementById('membersList');
-    family.members.forEach(member => {
+    (family.members || []).forEach(member => {
         const div = document.createElement('div');
         div.className = 'flex items-center justify-between p-2 rounded hover:bg-app-input/50';
         div.innerHTML = `

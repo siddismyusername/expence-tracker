@@ -44,6 +44,13 @@ export const api = {
         }
     },
     family: {
+        details: async () => {
+            const res = await fetch(`${API_URL}/family`, {
+                headers: getHeaders()
+            });
+            if (!res.ok) throw new Error('Failed to load family details');
+            return res.json();
+        },
         create: async (data) => {
             const res = await fetch(`${API_URL}/family/create`, {
                 method: 'POST',

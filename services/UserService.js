@@ -118,11 +118,30 @@ class UserService {
             // Don't allow password update through this method
             delete updateData.password;
             delete updateData.email;
-
-            const user = await UserRepository.update(userId, updateData);
-            if (!user) {
-                throw new Error('User not found');
+            // Merge preferences rather than overwriting entire object
+            let preferences = null;
+            if (updateData.preferences) {
+                preferences = updateData.preferences;
+                delete updateData.preferences; // prevent direct overwrite
             }
+
+            let user;
+            if (preferences) {
+                // Fetch existing user to merge preferences
+                const existing = await UserRepository.findById(userId);
+                if (!existing) throw new Error('User not found');
+
+                const mergedPreferences = {
+                    ...(existing.preferences || {}),
+                    ...preferences
+                };
+
+                user = await UserRepository.update(userId, { ...updateData, preferences: mergedPreferences });
+            } else {
+                user = await UserRepository.update(userId, updateData);
+            }
+
+            if (!user) throw new Error('User not found');
             return user;
         } catch (error) {
             console.error('UserService.updateProfile Error:', error.message);

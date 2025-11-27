@@ -58,19 +58,22 @@ class ExpenseService {
      * @param {String} userId - User ID
      * @returns {Promise<Array>} Array of expenses
      */
-    async getUserExpenses(userId) {
+    async getUserExpenses(userId, options = {}) {
         try {
             const user = await UserRepository.findById(userId);
-            if (!user) {
-                throw new Error('User not found');
+            if (!user) throw new Error('User not found');
+
+            const { year, month } = options || {};
+            const hasMonthFilter = Number.isInteger(year) && Number.isInteger(month) && month >= 1 && month <= 12;
+
+            if (hasMonthFilter) {
+                const startDate = new Date(year, month - 1, 1, 0, 0, 0, 0);
+                const endDate = new Date(year, month, 0, 23, 59, 59, 999); // last day of month
+                const baseFilter = user.familyId ? { familyId: user.familyId } : { userId };
+                return await ExpenseRepository.findByDateRange(startDate, endDate, baseFilter);
             }
 
-            // If user has family, get all family expenses
-            if (user.familyId) {
-                return await ExpenseRepository.findByFamilyId(user.familyId);
-            }
-
-            // Otherwise get user's personal expenses
+            if (user.familyId) return await ExpenseRepository.findByFamilyId(user.familyId);
             return await ExpenseRepository.findByUserId(userId);
         } catch (error) {
             console.error('ExpenseService.getUserExpenses Error:', error.message);

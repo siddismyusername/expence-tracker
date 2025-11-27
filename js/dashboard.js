@@ -1,5 +1,24 @@
 import { api } from './api.js';
 
+// Period selection elements (created if not present)
+function ensurePeriodSelector() {
+    if (!document.getElementById('periodSelect')) {
+        const container = document.getElementById('dashboardControls') || document.body;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-4 flex items-center gap-2';
+        wrapper.innerHTML = `
+            <label class="text-sm text-app-muted" for="periodSelect">Period:</label>
+            <select id="periodSelect" class="bg-app-card border border-app rounded px-2 py-1 text-sm">
+                <option value="month">Current Month</option>
+                <option value="all" selected>All Time</option>
+            </select>
+        `;
+        container.prepend(wrapper);
+    }
+}
+
+ensurePeriodSelector();
+
 // Currency conversion rates (same as settings.js)
 const currencyRates = {
     'USD': 1,
@@ -23,7 +42,16 @@ function convertCurrency(amountUSD, toCurrency) {
 
 async function loadDashboard() {
     try {
-        const expenses = await api.expenses.list();
+        const periodSelect = document.getElementById('periodSelect');
+        const period = periodSelect ? periodSelect.value : 'all';
+
+        let expenses;
+        if (period === 'month') {
+            const now = new Date();
+            expenses = await api.expenses.list({ year: now.getFullYear(), month: now.getMonth() + 1 });
+        } else {
+            expenses = await api.expenses.list();
+        }
         const user = await api.auth.me();
         const userCurrency = user.preferences?.currency || 'USD';
         const currencySymbol = currencySymbols[userCurrency];
@@ -56,8 +84,9 @@ async function loadDashboard() {
             }
         });
 
-        // Check budget threshold and show notification
-        if (budgetThreshold > 0 && myTotal > budgetThreshold) {
+        // Check budget threshold and show notification (only if enabled)
+        const notificationsEnabled = !!user.preferences?.notificationsEnabled;
+        if (notificationsEnabled && budgetThreshold > 0 && myTotal > budgetThreshold) {
             if (window.toast) {
                 window.toast.error(
                     `Your personal spending (${currencySymbol}${myTotal.toFixed(2)}) has exceeded your budget limit of ${currencySymbol}${budgetThreshold.toFixed(2)}!`,
@@ -67,9 +96,13 @@ async function loadDashboard() {
             }
         }
 
-        // Update UI with currency symbol
+        // Update UI with currency symbol + label
         document.getElementById('myTotalSpent').textContent = `${currencySymbol}${myTotal.toFixed(2)}`;
         document.getElementById('familyTotalSpent').textContent = `${currencySymbol}${familyTotal.toFixed(2)}`;
+        const periodLabelEl = document.getElementById('periodLabel');
+        if (periodLabelEl) {
+            periodLabelEl.textContent = period === 'month' ? 'Current Month' : 'All Time';
+        }
 
         // Charts
         renderCharts(familySpendingByUser, familySpendingByCategory, mySpendingByCategory);
@@ -120,6 +153,12 @@ function renderCharts(userSpending, familyCategory, myCategory) {
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
+}
+
+// Reload dashboard when period changes
+const periodSelectEl = document.getElementById('periodSelect');
+if (periodSelectEl) {
+    periodSelectEl.addEventListener('change', () => loadDashboard());
 }
 
 loadDashboard();

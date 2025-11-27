@@ -26,7 +26,13 @@ class ExpenseController {
      */
     async getExpenses(req, res) {
         try {
-            const expenses = await ExpenseService.getUserExpenses(req.user.id);
+            const { year, month } = req.query;
+            let expenses;
+            if (year && month) {
+                expenses = await ExpenseService.getUserExpenses(req.user.id, { year: parseInt(year, 10), month: parseInt(month, 10) });
+            } else {
+                expenses = await ExpenseService.getUserExpenses(req.user.id);
+            }
             res.json(expenses);
         } catch (error) {
             console.error('ExpenseController.getExpenses Error:', error.message);

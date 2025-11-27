@@ -27,7 +27,7 @@ async function showFamilyDashboard() {
     familyDashboardView.classList.remove('hidden');
 
     try {
-        const family = await api.family.members();
+        const family = await api.family.details();
 
         document.getElementById('familyName').textContent = family.name;
         document.getElementById('familyId').textContent = family.familyId;
@@ -35,7 +35,7 @@ async function showFamilyDashboard() {
         const membersList = document.getElementById('membersList');
         membersList.innerHTML = '';
 
-        family.members.forEach(member => {
+        (family.members || []).forEach(member => {
             const div = document.createElement('div');
             div.className = 'p-4 flex items-center justify-between hover:bg-app-input/50 transition-colors';
             div.innerHTML = `
